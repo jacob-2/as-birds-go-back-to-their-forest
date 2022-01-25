@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Max Live Code</title>
+<style type="text/css">
+body {
+  background-color: black;
+  color: white;
+  overflow: hidden;
+}
+#maxConn, #menuInputs {
+  width: 50%;
+  margin: auto auto;
+}
+#editor {
+  margin: auto auto;
+  width: 55%;
+  display: block;
+  background-color: black;
+  color: white;
+  border: none;
+  height: 98vh;
+  outline: none;
+  font-family: consolas;
+  font-size: 1.2em;
+  resize: none;
+  padding: 20px 10px;
+  tab-size: 4;
+}
+* {
+  box-sizing: border-box;
+}
+.fr {
+  float: right;
+}
+.w1-3 {
+  width: 33.333%;
+  display: inline-block;
+}
+.tar {
+  text-align: right;
+}
+</style>
+</head>
+
+<body>
+<div id='menu'>
+  <div class='fr'><div>Press `Escape` to toggle menu.</div><div>Press `Control + Enter` to send (play) the score in Max.</div></div>
+  <div id='maxConn'>
+    <label><span class='w1-3 tar'>Connection to Max failed:</span> <button id='retryMaxConn'>Retry</button></label>
+  </div>
+  <div id='menuInputs'>
+    <label><span class='w1-3 tar'>Code sharing server address: </span> <input id='server' placeholder='http://0.0.0.0:0000' /></label>
+    <br />
+    <label><span class='w1-3 tar'>Code sharing editor ID: </span> <input id='editorID' placeholder='Digit 1-6' /></label>
+  </div>
+</div>
+<textarea id='editor'></textarea>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cycling74.s3.amazonaws.com/download/xebra.min.js"></script>
+<script type="text/javascript">
+let $editorID = $('#editorID');
+let $server = $('#server');
+
+let $editor = $('#editor');
+let changes = false;
+$editor.keydown(function(e) {
+  changes = true;
+  // https://stackoverflow.com/questions/6637341/use-tab-to-indent-in-textarea
+  if (e.key == 'Tab') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "\t" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart = this.selectionEnd = start + 1;
+	}
+});
+
+
+var headers = new Headers();
+headers.append("Content-Type", "text/plain");
+setInterval(function(){
+  if(changes && $editorID.val()) {
+    changes = false;
+    fetch($server.val()+"/code/"+$editorID.val(), {
+      method: 'POST',
+      headers: headers,
+      body: $editor.val(),
+      redirect: 'follow'
+    });
+  }
+}, 600);
+
+$(document).keydown(function(e) {
+  if (e.keyCode == 27) { // Esc
+    $('#menu').toggle();
+  }
+  if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) { // Ctrl+Enter
+    fetch($server.val()+'/flash/'+$editorID.val(), {method:'POST'});
+    sendToMax($editor.val());
+  }
+});
+
+var xebraState = new Xebra.State({hostname : "localhost", port : 8086});
+var connectedToMax = false;
+var tryingToConnectToMax = false;
+xebraState.on("connection_changed", function (status) {
+  if (status === Xebra.CONNECTION_STATES.CONNECTED) {
+    connectedToMax = true;
+    $('#maxConn').hide();
+    tryingToConnectToMax = false;
+  } else if (status === Xebra.CONNECTION_STATES.CONNECTION_FAIL || status === Xebra.CONNECTION_STATES.DISCONNECTED) {
+    connectedToMax = false;
+    $('#maxConn').show();
+    tryingToConnectToMax = false;
+    console.log('Connection to Max failed.');
+  }
+});
+function connectToMax() {
+  if(tryingToConnectToMax) return;
+  tryingToConnectToMax = true;
+  xebraState.connect();
+}
+connectToMax();
+$('#retryMaxConn').click(connectToMax);
+function sendToMax(val) {
+  xebraState.sendMessageToChannel("fromBrowser", val);
+}
+</script>
+</body>
+</html>
