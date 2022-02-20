@@ -59,6 +59,82 @@ body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cycling74.s3.amazonaws.com/download/xebra.min.js"></script>
 <script type="text/javascript">
+
+const keyBinds = {
+  "1": `// LOON:
+load("WAVETABLE")
+load("JDELAY")
+  
+bus_config("WAVETABLE", "aux 0-1 out")
+bus_config("JDELAY", "aux 0-1 in", "out 0-1")
+
+wavetable = maketable("wave", 1000, "sine")
+
+amp = maketable("line", 1000, 0, 0, 1, 0.9, 10, 1, 13, 0)
+pitch = maketable("line", "nonorm", 1000, 0, 8.02, 7, 8.03, 7.05, 8.07, 25, 8.06)
+
+vib = makeLFO("sine", 2.5, 0.7, 1)
+
+WAVETABLE(0, 5, 8000 * amp * vib, pitch, 0.5)
+JDELAY(0, 0, 5, 0.2, 0.35, 0.7, 5.0, 0, 1)`,
+
+  "2": `// Delay:
+load("JDELAY")
+
+bus_config("JDELAY", "aux 0-1 in", "out 0-1")
+JDELAY(0, 0, 5, 0.2, 0.35, 0.7, 5.0, 0, 1)`,
+
+  "3": `// WAVETABLE (sine): 220, 440, 880, 329.6, 659.3, 1760, 1319
+load("WAVETABLE")
+load("JDELAY")
+  
+bus_config("WAVETABLE", "aux 0-1 out")
+bus_config("JDELAY", "aux 0-1 in", "out 0-1")
+
+amp = maketable("line", 1000, 0, 0, 1, 0.9, 10, 1, 13, 0)
+
+WAVETABLE(0, .25, 8000 * amp, 659.3, 0.5)
+JDELAY(0, 0, 3, 0.5, 0.09, 0.7, 5.0, 0, 1)`,
+
+  "4": `// WAVETABLE (square, saw): 220, 440, 880, 329.6, 523.3, 233.1, 466.2, 392
+load("WAVETABLE")
+load("JDELAY")
+  
+bus_config("WAVETABLE", "aux 0-1 out")
+bus_config("JDELAY", "aux 0-1 in", "out 0-1")
+
+amp = maketable("line", 1000, 0, 0, 1, 0.9, 10, 1, 13, 0)
+wave = maketable("wave", 1000, "saw")
+  
+WAVETABLE(0, .25, 8000 * amp, 659.3, 0.5, wave)
+JDELAY(0, 0, 3, 0.2, 0.09, 0.7, 5.0, 0, 1)`,
+  "5": `// 2DMESH:
+load("JDELAY")
+load("MMESH2D")
+  
+bus_config("MMESH2D", "aux 0-1 out")
+bus_config("JDELAY", "aux 0-1 in", "out 0-1")
+
+amp = maketable("line", 1000, 0, 0, 1, 0.9, 10, 1, 13, 0)
+
+MMESH2D(0, 4.5, 3*30000, 12, 11, 0.8, 0.9, 1.0, 1.0, 0.5)
+JDELAY(0, 0, 3, 0.2, 0.09, 0.7, 5.0, 0, 1)`,
+  "6": `// Blacktern
+load("WAVETABLE")
+
+wavetable = maketable("wave", 1000, 0.2, 0.5, 0.9, 0.6, 1, 0.6, 0.5, 0.3, 0.1)
+
+pitch = maketable("curve", "nonorm", 1000, 0, 10.04, 1, 3, 10.01)
+
+st = 0
+
+for(i=0; i<5; i=i+1)
+{
+\tst += 0.4 + rand()/10
+\tWAVETABLE(st, 0.1, 10000, pitch, 0.5, wavetable)
+}`,
+};
+
 let $editorID = $('#editorID');
 let $server = $('#server');
 
@@ -100,10 +176,16 @@ $(document).keydown(function(e) {
   if (e.keyCode == 27) { // Esc
     $('#menu').toggle();
   }
-  if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) { // Ctrl+Enter
-    fetch($server.val()+'/flash/'+$editorID.val(), {method:'POST'});
-    sendToMax($editor.val());
+  if (e.ctrlKey) {
+    if(e.keyCode == 10 || e.keyCode == 13) { // Ctrl+Enter
+      fetch($server.val()+'/flash/'+$editorID.val(), {method:'POST'});
+      sendToMax($editor.val());
+    } else if(e.key in keyBinds) {
+      $editor.val(keyBinds[e.key]);
+      changes = true;
+    }
   }
+  sendBangToMax();
 });
 
 var xebraState = new Xebra.State({hostname : "localhost", port : 8086});
@@ -129,7 +211,10 @@ function connectToMax() {
 connectToMax();
 $('#retryMaxConn').click(connectToMax);
 function sendToMax(val) {
-  xebraState.sendMessageToChannel("fromBrowser", val);
+  xebraState.sendMessageToChannel("codeFromBrowser", val);
+}
+function sendBangToMax() {
+  xebraState.sendMessageToChannel("bangFromBrowser", 'bang');
 }
 </script>
 </body>
