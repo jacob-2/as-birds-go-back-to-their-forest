@@ -58,7 +58,3 @@ func viewWs(w http.ResponseWriter, r *http.Request) {
 	}
 	hub.register <- c
 }
-
-// func view(w http.ResponseWriter, r *http.Request) {
-// 	http.ServeFile(w, r, "./view/view.html")
-// }

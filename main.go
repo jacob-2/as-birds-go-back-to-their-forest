@@ -7,11 +7,14 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -84,12 +87,11 @@ func main() {
 	r.HandleFunc("/peek", peek)
 
 	r.HandleFunc("/view-ws", viewWs)
-	// r.HandleFunc("/view", view)
-	r.PathPrefix("/view/").Handler(http.StripPrefix("/view/", http.FileServer(http.Dir("./view"))))
+	r.PathPrefix("/view/").Handler(
+		http.StripPrefix("/view/", http.FileServer(http.Dir("./view"))),
+	)
 
-
-	// r.HandleFunc("/editor", editor)
-	r.PathPrefix("/editor/").Handler(http.StripPrefix("/editor/", http.FileServer(http.Dir("./editor"))))
+	r.HandleFunc("/editor/", editor)
 
 	http.Handle("/", cors.Default().Handler(r))
 	go wsLoop()
@@ -97,17 +99,17 @@ func main() {
 }
 
 
-// func editor(w http.ResponseWriter, r *http.Request) {
-// 	file := "./editor/editor.html"
-// 	fileBytes, err := ioutil.ReadFile(file)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-// 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
-// 	w.Header().Set("Content-Disposition", "attachment; filename=\"editor.html\"")
-// 	w.Header().Set("Expires", "0")
-// 	w.Header().Set("Content-Length", strconv.Itoa(len(fileBytes)))
-// 	w.Header().Set("Cache-Control", "no-store")
-// 	http.ServeContent(w, r, file, time.Now(), bytes.NewReader(fileBytes))
-// }
+func editor(w http.ResponseWriter, r *http.Request) {
+	file := "./editor/editor.zip"
+	fileBytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"editor.zip\"")
+	w.Header().Set("Expires", "0")
+	w.Header().Set("Content-Length", strconv.Itoa(len(fileBytes)))
+	w.Header().Set("Cache-Control", "no-store")
+	http.ServeContent(w, r, file, time.Now(), bytes.NewReader(fileBytes))
+}
