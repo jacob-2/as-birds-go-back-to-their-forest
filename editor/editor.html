@@ -50,7 +50,7 @@ body {
     <label><span class='w1-3 tar'>Connection to Max failed:</span> <button id='retryMaxConn'>Retry</button></label>
   </div>
   <div id='menuInputs'>
-    <label><span class='w1-3 tar'>Code sharing server address: </span> <input id='server' placeholder='http://0.0.0.0:0000' /></label>
+    <label><span class='w1-3 tar'>Code sharing server address: </span> <input id='server' placeholder='http://0.0.0.0:0000' value="http://localhost:8090" /></label>
     <br />
     <label><span class='w1-3 tar'>Code sharing editor ID: </span> <input id='editorID' placeholder='Digit 1-6' /></label>
   </div>
@@ -179,7 +179,8 @@ $(document).keydown(function(e) {
   if (e.ctrlKey) {
     if(e.keyCode == 10 || e.keyCode == 13) { // Ctrl+Enter
       fetch($server.val()+'/flash/'+$editorID.val(), {method:'POST'});
-      sendToMax($editor.val());
+      if (!$editor.val().toLowerCase().startsWith('set phase'))
+        sendToMax($editor.val());
     } else if(e.key in keyBinds) {
       $editor.val(keyBinds[e.key]);
       changes = true;

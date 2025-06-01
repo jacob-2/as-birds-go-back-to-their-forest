@@ -1,90 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Max Live Code</title>
-<style type="text/css">
-#view {
-  font-size: 1.2em;
-  font-family: consolas;
-  text-align: center;
-  width: 88%;
-  margin: auto auto;
-}
-#view > div {
-  text-align: left;
-  display: inline-block;
-  background-color: black;
-  color: white;
-  padding: 8px 14px;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  tab-size: 4;
-}
-.h50 {
-  height: 50vh;
-}
-.h100 {
-  height: 100vh;
-}
-.w1-3 {
-  width: 33.3333%;
-}
-.w1-2 {
-  width: 50%;
-  display: inline-block;
-  vertical-align: baseline;
-}
-input {
-  vertical-align: top;
-}
-body {
-  background-color: black;
-  color: white;
-}
-* {
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-#menuInputs {
-  width: 50%;
-  margin: auto auto;
-}
-
-.tar {
-  text-align: right;
-}
-.fr {
-  float: right;
-}
-@-webkit-keyframes flash {
-  0% {
-    background-color: white;
-    color: black;
-  }
-  5% {background-color: white;}
-  10% {
-    background-color: #ddd;
-    color: black;
-  }
-  20% {
-    background-color: #666;
-    color: #666;
-  }
-  38% {
-    background-color: #393939;
-    color: white;
-  }
-  100% {background-color: #000;}
-}
-
-.flash {
-  -webkit-animation-name: flash;
-  -webkit-animation-duration: 2900ms;
-  -webkit-animation-timing-function: ease-out;
-}
-</style>
+  <title>Max Live Code</title>
+  <link rel="stylesheet" type="text/css" href="styles.css" />
 </head>
+
 <body>
 <div id='menu'>
 	<div class='fr'>
@@ -92,64 +12,19 @@ body {
 	</div>
 	<div id='menuInputs'>
 		<label><span class='w1-2 tar'>Number of editors:</span> <input id='numEditors' placeholder='From 1 to 6'
-				value='6' /></label>
+				value='3' /></label>
 	</div>
 </div>
 
-<div id='view'><div id='v0' class='w1-3 h50'></div><div id='v1' class='w1-3 h50'></div><div id='v2' class='w1-3 h50'></div><div id='v3' class='w1-3 h50'></div><div id='v4' class='w1-3 h50'></div><div id='v5' class='w1-3 h50'></div>/div>
+<!-- <div id='view'><div class='w1-3 h50'><span id='v0'></span></div><div class='w1-3 h50'><span id='v1'></span></div><div class='w1-3 h50'><span id='v2'></span></div><div class='w1-3 h50'><span id='v3'></span></div><div class='w1-3 h50'><span id='v4'></span></div><div class='w1-3 h50'><span id='v5'></span></div></div> -->
+<div id='view'><div id='v0' class='w1-3 h50'></div><div id='v1' class='w1-3 h50'></div><div id='v2' class='w1-3 h50'></div><div id='v3' class='w1-3 h50'></div><div id='v4' class='w1-3 h50'></div><div id='v5' class='w1-3 h50'></div></div>
+
+
 <script src="jquery.min.js"></script>
-<script type="text/javascript">
-if (!window["WebSocket"]) {
-	document.getElementById("view").innerHTML = "<b>Your browser does not support WebSockets.</b>";
-}
-
-conn = new WebSocket("ws://"+location.host+"/view-ws");
-conn.onclose = function (evt) {
-	console.log("WebSocket closed. Reloading...");
-	window.location.reload();
-};
-conn.onmessage = function (evt) {
-	var item = $("#v" + (parseInt(evt.data[1])-1));
-	if(evt.data[0] == 'c')
-		item[0].innerText = evt.data.slice(2);
-	else if(evt.data[0] == 'f') {
-		item.removeClass('flash');
-		setTimeout(() => { item.addClass('flash') }, 30);
-	}
-};
-fetch('http://'+location.host+'/peek').then(r => r.json()).then(state => {
-	for (var i = 0; i < state.length; i++) {
-		var item = document.getElementById("v" + (i));
-		item.innerText = state[i];
-	}
-});
-
-function setViews(n) {
-	for (var i = 0; i < 6; i++) {
-		var d = $("#v" + i);
-		if (i < n) d.show();
-		else d.hide();
-		if (n < 4) d.removeClass("h50").addClass("h100");
-		else d.removeClass("h100").addClass("h50");
-		if (n == 1 || n == 2 || n == 4) d.removeClass("w1-3").addClass("w1-2");
-		else d.removeClass("w1-2").addClass("w1-3");
-	}
-}
-
-let numEditors = 6;
-let $numEditors = $('#numEditors');
-$numEditors.change(function (e) {
-	numEditors = $numEditors.val();
-	console.log(numEditors);
-	setViews(numEditors);
-});
-setViews(6);
-
-$(document).keydown(function (e) {
-	if (e.keyCode == 27) { // Esc
-		$('#menu').toggle();
-	}
-});
-</script>
+<script src="p5.min.js"></script>
+<script src="xebra.min.js"></script>
+<script src="boid.js"></script>
+<script src="flock.js"></script>
+<script src="main.js"></script>
 </body>
 </html>

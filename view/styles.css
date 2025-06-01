@@ -1,0 +1,90 @@
+#view {
+  font-size: 1.2em;
+  font-family: consolas;
+  text-align: center;
+  width: 92%;
+  margin: auto auto;
+}
+#view > div {
+  text-align: left;
+  display: inline-block;
+  color: rgba(0,30,100,.7);
+  padding: 8px 14px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  tab-size: 4;
+}
+#view > div > span {
+  vertical-align: middle;
+}
+.h50 {
+  height: 50vh;
+}
+.h100 {
+  height: 100vh;
+}
+.w1-3 {
+  width: 33.3333%;
+}
+.w1-2 {
+  width: 50%;
+  display: inline-block;
+  vertical-align: baseline;
+}
+input {
+  vertical-align: top;
+}
+body {
+  background-color: rgb(200, 225, 255);
+  margin: 0 0;
+  /* color: white; */
+}
+* {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#menuInputs {
+  width: 50%;
+  margin: auto auto;
+}
+
+.tar {
+  text-align: right;
+}
+.fr {
+  float: right;
+}
+@-webkit-keyframes flash {
+  0% {
+    background-color: rgba(255, 255, 188, 0.8);
+    color: rgba(0,0,0,.7);
+  }
+  5% {background-color: rgba(255, 255, 188, 1);}
+  10% {
+    background-color: rgba(255, 255, 188, .8);
+    color: rgba(0,0,0,1);
+  }
+  20% {
+    background-color: rgba(255, 255, 188, .5);
+    color: #666;
+  }
+  38% {
+    background-color: rgba(255, 255, 188, .1);
+    /* color: white; */
+  }
+  100% {background-color: rgba(255, 255, 188, 0);}
+}
+
+.flash {
+  -webkit-animation-name: flash;
+  -webkit-animation-duration: 2900ms;
+  -webkit-animation-timing-function: ease-out;
+}
+
+
+main {
+	position: absolute;
+	top: 0;
+	z-index: -999;
+}
