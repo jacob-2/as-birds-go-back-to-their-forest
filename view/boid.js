@@ -5,17 +5,25 @@
 // Boid class
 // Methods for Separation, Cohesion, Alignment added
 
+let startTime = Date.now();
+
 class Boid {
   constructor(start, end) {
     this.acceleration = createVector(0, 0);
     this.velocity = createVector(random(-1, 1), random(-1, 1));
     this.position = start;
 		this.end = end;
-		this.dying = 0;
+
+		this.size = 1 - .15 + .3 * Math.random();
+		if(this.size < .9) this.size * .7;
+		this.flapSpeed = 1 - .2 + .4 * Math.random();
+
     // this.r = 9.2;
     this.r = 5.5;
     this.maxspeed = 2.5; // Maximum speed
-    this.maxforce = 0.05; // Maximum steering force
+		this.minspeed = 1.5;
+    this.maxforce = 0.06; // Maximum steering force
+    // this.maxforce = 0.05; // Maximum steering force
   }
 
   run(boids, shift) {
@@ -38,8 +46,8 @@ class Boid {
   }
 
 	freeFly() {
-		// if (p5.Vector.sub(this.position, this.end).mag() < 20)
-		// 	this.dying++;
+
+		// this.applyForce(this.seek(createVector(window.innerWidth*.5, window.innerHeight*.5)).mult(.2));
 
 		this.applyForce(this.seek(createVector(window.innerWidth*.25, window.innerHeight*.5)).mult(.2));
 		this.applyForce(this.seek(createVector(window.innerWidth*.5, window.innerHeight*.3)).mult(-.03));
@@ -65,7 +73,7 @@ class Boid {
 
 	disperse() {
 		let cen = createVector(window.innerWidth/2, window.innerHeight/2);
-		this.applyForce(this.seek(cen).mult(.1));
+		this.applyForce(this.seek(cen).mult(-.05));
 	}
 
   // We accumulate a new acceleration each time based on three rules
@@ -89,6 +97,8 @@ class Boid {
     this.velocity.add(this.acceleration);
     // Limit speed
     this.velocity.limit(this.maxspeed);
+    if(this.velocity.mag() < this.minspeed)
+			this.velocity.setMag(this.minspeed);
     this.position.add(this.velocity);
     // Reset accelertion to 0 each cycle
     this.acceleration.mult(0);
@@ -108,41 +118,53 @@ class Boid {
   }
 
   show(shift) {
+		let r = this.r * this.size;
+
     // Draw a triangle rotated in the direction of velocity
     let angle = this.velocity.heading();
     fill(155);
     stroke(200);
-		strokeWeight(this.r*.2);
+		strokeWeight(r*.2);
 		strokeJoin(ROUND);
     push();
     translate(this.position.x, this.position.y);
     rotate(angle);
     beginShape();
-    vertex(this.r * 1, this.r * .2);
-    vertex(this.r * 1, -this.r * .2);
-    vertex(-this.r * 1.4, -this.r * .6);
-    vertex(-this.r * 1.4, this.r * .6);
+    vertex(r * .9, r * .2);
+    vertex(r * .9, -r * .2);
+    vertex(-r * 1.4, -r * .6);
+    vertex(-r * 1.4, r * .6);
     endShape(CLOSE);
     pop();
 
 		
     fill(155);
     stroke(175);
-		strokeWeight(this.r*.5);
+		strokeWeight(r*.5);
 		strokeJoin(ROUND);
     push();
     translate(this.position.x, this.position.y);
     rotate(angle);
     beginShape();
-    // vertex(this.r * .5, 0);
+    // vertex(r * .5, 0);
 		// let flap = Math.random() + .6;
-		let flap = Math.sin(shift + new Date().getMilliseconds()/5.5) * 1.6;
-    vertex(-this.r * .1, -this.r * flap * .6);
-    vertex(-this.r * .1, this.r * flap * .6);
-    vertex(-this.r * .7, this.r * flap);
-    vertex(-this.r * .7, -this.r * flap);
-    // vertex(-this.r * .7, -this.r * 1.6);
-    // vertex(-this.r * .7, this.r * 1.6);
+		let flap = Math.sin((startTime - new Date().getTime())/150 * this.flapSpeed + Math.PI*(.5-shift));
+		if (this.hold && flap > .9)
+			this.hold = Math.floor(Math.random() * 2);
+		else if (!this.hold && flap > .9)
+			this.hold = true;
+		if (this.hold)
+			flap = 1;
+		flap = flap * 2.5;
+		// let flap = Math.sin(Math.PI * (new Date().getMilliseconds()-500)/500 + Math.PI*(.5-shift)) * 1.95;
+    vertex(-r * 0, -r * flap * .5);
+    vertex(-r * 0, r * flap * .5);
+    vertex(-r * .7, r * flap);
+    vertex(-r * .55, r * flap * .5);
+    vertex(-r * .55, -r * flap * .5);
+    vertex(-r * .7, -r * flap);
+    // vertex(-r * .7, -r * 1.6);
+    // vertex(-r * .7, r * 1.6);
     endShape(CLOSE);
     pop();
   }

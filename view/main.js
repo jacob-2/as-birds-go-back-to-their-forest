@@ -71,7 +71,7 @@ function growFlock(trueFalse) {
 	if (trueFalse) {
 		growInt = setInterval(() => {
 			addBird()
-		}, 1200);
+		}, 900);
 	}
 }
 
