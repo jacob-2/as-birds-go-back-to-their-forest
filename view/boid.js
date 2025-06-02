@@ -22,7 +22,7 @@ class Boid {
     this.r = 5.5;
     this.maxspeed = 2.5; // Maximum speed
 		this.minspeed = 1.5;
-    this.maxforce = 0.06; // Maximum steering force
+    this.maxforce = 0.07; // Maximum steering force
     // this.maxforce = 0.05; // Maximum steering force
   }
 
@@ -68,7 +68,7 @@ class Boid {
 		else if (pos.x < cen.x && pos.y > cen.y) // left-bottom
 			tar = createVector(window.innerWidth*.25, window.innerHeight*.25);
 		this.applyForce(this.seek(tar).mult(.4));
-		this.applyForce(this.seek(cen).mult(.2));
+		this.applyForce(this.seek(cen).mult(.14));
 	}
 
 	disperse() {
@@ -83,8 +83,8 @@ class Boid {
     let coh = this.cohere(boids); // Cohesion
     // Arbitrarily weight these forces
     sep.mult(1.5);
-    ali.mult(1.0);
-    coh.mult(1.0);
+    ali.mult(1.1);
+    coh.mult(1.1);
     // Add the force vectors to acceleration
     this.applyForce(sep);
     this.applyForce(ali);
@@ -241,7 +241,7 @@ class Boid {
   // Cohesion
   // For the average location (i.e. center) of all nearby boids, calculate steering vector towards that location
   cohere(boids) {
-    let neighborDistance = 50;
+    let neighborDistance = 80;
     let sum = createVector(0, 0); // Start with empty vector to accumulate all locations
     let count = 0;
     for (let i = 0; i < boids.length; i++) {
