@@ -8,6 +8,7 @@
 #view > div {
   text-align: left;
   display: inline-block;
+  opacity: .66;
   color: rgba(0,30,100,.7);
   padding: 8px 14px;
   word-wrap: break-word;
@@ -15,7 +16,10 @@
   tab-size: 4;
 }
 #view > div > span {
-  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+  height: inherit;
+  align-items: center;
 }
 .h50 {
   height: 50vh;

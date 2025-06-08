@@ -11,8 +11,7 @@ conn.onclose = function (evt) {
 };
 fetch('http://localhost:8090/peek').then(r => r.json()).then(state => {
 	for (var i = 0; i < state.length; i++) {
-		var item = document.getElementById("v" + (i));
-		item.innerText = state[i];
+		$("#v" + i + " span")[0].innerText = state[i];
 	}
 });
 
@@ -78,7 +77,7 @@ function growFlock(trueFalse) {
 window.phase = 0;
 
 conn.onmessage = function (evt) {
-	let item = $("#v" + (parseInt(evt.data[1])-1));
+	let item = $("#v" + (parseInt(evt.data[1])-1) + " span");
 	if(evt.data[0] == 'c')
 		item[0].innerText = evt.data.slice(2);
 	else if(evt.data[0] == 'f') {
